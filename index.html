@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GitHub CDN Dashboard - ohyesohnoyesno</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#eef2ff',
+              100: '#e0e7ff',
+              500: '#6366f1',
+              600: '#4f46e5',
+              700: '#4338ca',
+              900: '#312e81',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+    }
+    .code-font {
+      font-family: 'JetBrains Mono', monospace;
+    }
+    .gradient-bg {
+      background: radial-gradient(circle at 50% 50%, rgba(99, 102, 241, 0.15) 0%, rgba(0, 0, 0, 0) 50%);
+    }
+  </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen relative overflow-x-hidden">
+  
+  <!-- Efek Latar Belakang Neon -->
+  <div class="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-7xl h-[600px] gradient-bg pointer-events-none z-0"></div>
+
+  <div class="container mx-auto px-4 py-12 max-w-5xl relative z-10">
+    
+    <!-- Header -->
+    <header class="text-center mb-12">
+      <div class="inline-flex items-center gap-3 bg-brand-500/10 border border-brand-500/30 px-4 py-2 rounded-full mb-4">
+        <span class="flex h-2 w-2 relative">
+          <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"></span>
+          <span class="relative inline-flex rounded-full h-2 w-2 bg-indigo-500"></span>
+        </span>
+        <span class="text-xs font-semibold text-brand-100 tracking-wider uppercase">Enterprise CDN Active</span>
+      </div>
+      <h1 class="text-4xl md:text-5xl font-extrabold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-white via-slate-100 to-brand-500 mb-4">
+        GitHub CDN Link Converter
+      </h1>
+      <p class="text-slate-400 max-w-2xl mx-auto text-base md:text-lg">
+        Konversi script, stylesheet, dan aset dari repositori GitHub publik ke URL CDN berkecepatan tinggi menggunakan jaringan edge Cloudflare.
+      </p>
+    </header>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      
+      <!-- Panel Input & Form Converter (Kiri) -->
+      <div class="lg:col-span-2 space-y-6">
+        
+        <div class="bg-slate-900/80 border border-slate-800/80 rounded-2xl p-6 backdrop-blur-xl shadow-xl">
+          <h2 class="text-lg font-semibold mb-4 flex items-center gap-2">
+            <i class="fa-solid fa-wand-magic-sparkles text-brand-500"></i> Konverter URL
+          </h2>
+          
+          <div class="space-y-5">
+            <!-- Menampilkan Domain Aktif dalam Bentuk Badge Non-Editable -->
+            <div class="p-4 bg-slate-950 border border-slate-800 rounded-xl flex items-center justify-between">
+              <div>
+                <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Domain CDN Terhubung</p>
+                <p class="text-sm font-semibold text-brand-300 mt-1 code-font">https://cdn.ohyesohnoyesno.workers.dev</p>
+              </div>
+              <div class="bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 px-2.5 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider">
+                <i class="fa-solid fa-cloud mr-1"></i> Active
+              </div>
+            </div>
+
+            <!-- Input Utama Link GitHub -->
+            <div>
+              <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">
+                📂 Link File GitHub Publik
+              </label>
+              <div class="relative rounded-lg shadow-sm">
+                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-500">
+                  <i class="fa-brands fa-github text-lg"></i>
+                </div>
+                <input type="text" id="githubUrl" class="w-full pl-10 pr-4 py-3.5 bg-slate-950 border border-slate-800 focus:border-brand-500 rounded-xl focus:outline-none text-sm placeholder-slate-600 transition" placeholder="https://github.com/owner/repo/blob/branch/src/app.js">
+              </div>
+              <p class="text-[11px] text-slate-500 mt-1.5">Paste link file dari browser GitHub (mendukung branch dinamis atau tag rilis).</p>
+            </div>
+
+            <!-- Indikator Cache Pintar -->
+            <div class="p-3.5 bg-slate-950/50 rounded-xl border border-slate-800/50 flex items-center justify-between">
+              <div>
+                <p class="text-sm font-semibold text-slate-200" id="cacheTypeTitle">Tipe Cache Otomatis</p>
+                <p class="text-xs text-slate-500">Sistem akan menyesuaikan durasi cache berdasarkan nama branch/tag.</p>
+              </div>
+              <span id="cacheBadge" class="px-3 py-1 bg-slate-800 text-slate-400 text-xs font-medium rounded-full uppercase tracking-wider">Dynamic</span>
+            </div>
+
+            <!-- Tombol Aksi -->
+            <button onclick="convertUrl()" class="w-full bg-brand-600 hover:bg-brand-500 text-white font-medium py-3 px-4 rounded-xl transition duration-200 flex items-center justify-center gap-2 shadow-lg shadow-brand-600/20">
+              <i class="fa-solid fa-rotate text-sm"></i> Generate Link CDN
+            </button>
+          </div>
+        </div>
+
+        <!-- Output URL & Embed Options -->
+        <div id="outputSection" class="hidden space-y-6">
+          <div class="bg-slate-900 border border-emerald-500/30 rounded-2xl p-6 shadow-xl relative overflow-hidden">
+            <div class="absolute top-0 right-0 px-3 py-1 bg-emerald-500/10 text-emerald-400 text-xs rounded-bl-xl border-l border-b border-emerald-500/20 font-medium">
+              Siap Digunakan
+            </div>
+
+            <h3 class="text-base font-semibold mb-4 text-emerald-400 flex items-center gap-2">
+              <i class="fa-solid fa-circle-check"></i> Link Hasil Konversi
+            </h3>
+
+            <div class="space-y-4">
+              <!-- URL CDN Utama -->
+              <div>
+                <div class="flex items-center justify-between mb-1.5">
+                  <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">URL CDN</span>
+                  <span class="text-xs text-emerald-500 font-medium" id="cachePolicyText">Mutable Cache Policy</span>
+                </div>
+                <div class="flex gap-2">
+                  <div class="bg-slate-950 border border-slate-800 px-4 py-2.5 rounded-xl text-sm text-slate-300 w-full overflow-x-auto whitespace-nowrap code-font" id="cdnUrl">
+                    -
+                  </div>
+                  <button onclick="copyToClipboard('cdnUrl')" class="bg-slate-800 hover:bg-slate-700 text-slate-200 px-4 rounded-xl transition duration-150 flex items-center justify-center shrink-0">
+                    <i class="fa-solid fa-copy"></i>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Tag Embed HTML -->
+              <div>
+                <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1.5">Tag Embed HTML</label>
+                <div class="flex gap-2">
+                  <div class="bg-slate-950 border border-slate-800 px-4 py-2.5 rounded-xl text-sm text-slate-300 w-full overflow-x-auto whitespace-nowrap code-font text-brand-300" id="embedTag">
+                    -
+                  </div>
+                  <button onclick="copyToClipboard('embedTag')" class="bg-slate-800 hover:bg-slate-700 text-slate-200 px-4 rounded-xl transition duration-150 flex items-center justify-center shrink-0">
+                    <i class="fa-solid fa-copy"></i>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Lintas Domain Cache Purge -->
+              <div class="pt-4 border-t border-slate-800/80">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                  <div>
+                    <h4 class="text-xs font-semibold text-rose-400 uppercase tracking-wider">Hapus Cache Jalur Ini (Remote Purge)</h4>
+                    <p class="text-[11px] text-slate-500">Minta server Cloudflare untuk menghapus paksa cache lama dari file ini.</p>
+                  </div>
+                  <div class="flex gap-2 shrink-0">
+                    <button onclick="triggerPurge()" class="bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/20 px-3.5 py-1.5 rounded-lg text-xs font-medium transition duration-150 flex items-center gap-1.5">
+                      <i class="fa-solid fa-trash-can"></i> Purge Cache
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Cross-Domain Performance Check -->
+          <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-6">
+            <h3 class="text-base font-semibold mb-3 flex items-center justify-between">
+              <span class="flex items-center gap-2"><i class="fa-solid fa-gauge-high text-sky-400"></i> Tes Latensi & Header CORS</span>
+              <button onclick="testCdnPerformance()" class="text-xs text-brand-400 hover:text-brand-300 transition"><i class="fa-solid fa-play mr-1"></i> Ping CDN</button>
+            </h3>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4" id="testResultGrid">
+              <div class="bg-slate-950 border border-slate-800/50 p-3 rounded-xl text-center">
+                <p class="text-[10px] text-slate-500 uppercase font-semibold">CORS Status</p>
+                <p class="text-sm font-bold text-slate-300 mt-1" id="testStatus">-</p>
+              </div>
+              <div class="bg-slate-950 border border-slate-800/50 p-3 rounded-xl text-center">
+                <p class="text-[10px] text-slate-500 uppercase font-semibold">Latency</p>
+                <p class="text-sm font-bold text-slate-300 mt-1" id="testLatency">-</p>
+              </div>
+              <div class="bg-slate-950 border border-slate-800/50 p-3 rounded-xl text-center">
+                <p class="text-[10px] text-slate-500 uppercase font-semibold">X-Cache Edge</p>
+                <p class="text-sm font-bold text-slate-300 mt-1" id="testCache">-</p>
+              </div>
+              <div class="bg-slate-950 border border-slate-800/50 p-3 rounded-xl text-center">
+                <p class="text-[10px] text-slate-500 uppercase font-semibold">Mime Content</p>
+                <p class="text-sm font-bold text-slate-300 mt-1 truncate" id="testMime" title="-">-</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Panel Samping / Informasi (Kanan) -->
+      <div class="space-y-6">
+        
+        <div class="bg-slate-900/50 border border-slate-800 rounded-2xl p-6 space-y-4">
+          <h3 class="text-sm font-semibold text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
+            <i class="fa-solid fa-network-wired text-brand-400"></i> Sistem Terdesentralisasi
+          </h3>
+          <p class="text-xs text-slate-400 leading-relaxed">
+            Frontend konverter ini dirancang independen dari backend CDN di <code class="text-slate-300">cdn.ohyesohnoyesno.workers.dev</code>. Data ditransfer lintas-domain secara instan menggunakan metode fetch asinkron yang aman.
+          </p>
+          <div class="p-3 bg-slate-950 rounded-xl border border-slate-800">
+            <h4 class="text-[11px] font-semibold text-slate-300 uppercase mb-1">MIME Detection:</h4>
+            <p class="text-[10px] text-slate-500 leading-normal">
+              Aplikasi mendukung lebih dari 100+ tipe ekstensi file (.js, .css, .json, .wasm, .svg, dll.) secara otomatis sehingga tidak akan diblokir browser.
+            </p>
+          </div>
+        </div>
+
+        <div class="bg-slate-900/50 border border-slate-800 rounded-2xl p-6">
+          <h3 class="text-sm font-semibold text-slate-300 uppercase tracking-wider mb-3">Arsitektur CDN</h3>
+          <ol class="space-y-2.5 text-xs text-slate-400">
+            <li class="flex gap-2.5">
+              <span class="font-bold text-brand-400">1.</span>
+              <span>Masukkan URL berkas GitHub publik di kolom input.</span>
+            </li>
+            <li class="flex gap-2.5">
+              <span class="font-bold text-brand-400">2.</span>
+              <span>Sistem mengonversinya ke jalur CDN Cloudflare Edge pribadi Anda.</span>
+            </li>
+            <li class="flex gap-2.5">
+              <span class="font-bold text-brand-400">3.</span>
+              <span>Lakukan pre-test dan audit cache jarak jauh secara langsung dari dasbor ini.</span>
+            </li>
+          </ol>
+        </div>
+
+      </div>
+
+    </div>
+
+    <!-- Footer -->
+    <footer class="mt-20 pt-8 border-t border-slate-900 text-center text-xs text-slate-600">
+      <p>&copy; 2026 ohyesohnoyesno CDN. Didukung oleh Cloudflare Workers & GitHub API.</p>
+    </footer>
+
+  </div>
+
+  <!-- Toast Notifikasi -->
+  <div id="toast" class="fixed bottom-5 right-5 bg-slate-900 border border-slate-800 text-slate-200 px-4 py-3 rounded-xl shadow-2xl transition duration-300 transform translate-y-20 opacity-0 z-50 flex items-center gap-2">
+    <span id="toastIcon"></span>
+    <span id="toastMessage" class="text-xs font-semibold"></span>
+  </div>
+
+  <script>
+    // Inisialisasi Domain CDN Utama secara permanen (Locked/Hardcoded)
+    const CDN_WORKER_DOMAIN = "https://cdn.ohyesohnoyesno.workers.dev";
+    let activeConvertedData = null;
+
+    /**
+     * Konversi URL GitHub ke URL CDN Cloudflare
+     */
+    function convertUrl() {
+      const gitUrl = document.getElementById("githubUrl").value.trim();
+
+      if (!gitUrl) {
+        showToast("error", "Silakan masukkan link berkas GitHub, bro!");
+        return;
+      }
+
+      const githubBlobRegex = /^https?:\/\/github\.com\/([^\/]+)\/([^\/]+)\/blob\/([^\/]+)\/(.+)$/i;
+      const githubRawRegex = /^https?:\/\/raw\.githubusercontent\.com\/([^\/]+)\/([^\/]+)\/([^\/]+)\/(.+)$/i;
+
+      let match = gitUrl.match(githubBlobRegex) || gitUrl.match(githubRawRegex);
+
+      if (!match) {
+        showToast("error", "Format URL GitHub salah! Pastikan link mengarah langsung ke file.");
+        return;
+      }
+
+      const [_, owner, repo, branch, filePath] = match;
+
+      // Konversi langsung menggunakan domain yang sudah di-lock
+      const cdnUrlStr = `${CDN_WORKER_DOMAIN}/${owner}/${repo}/${branch}/${filePath}`;
+      activeConvertedData = { owner, repo, branch, filePath, cdnUrlStr };
+
+      // Render data ke tampilan
+      document.getElementById("cdnUrl").innerText = cdnUrlStr;
+      document.getElementById("embedTag").innerText = generateEmbedTag(filePath, cdnUrlStr);
+      
+      const isImmutable = isVersionOrCommit(branch);
+      const cacheBadge = document.getElementById("cacheBadge");
+      const cacheTitle = document.getElementById("cacheTypeTitle");
+      const cachePolicyText = document.getElementById("cachePolicyText");
+
+      if (isImmutable) {
+        cacheBadge.innerText = "Immutable";
+        cacheBadge.className = "px-3 py-1 bg-emerald-500/10 text-emerald-400 text-xs font-semibold rounded-full border border-emerald-500/20 uppercase tracking-wider";
+        cacheTitle.innerText = "Smart Cache: Immutable (Static Release)";
+        cachePolicyText.innerText = "Cached Permanently (1 Year)";
+        cachePolicyText.className = "text-xs text-emerald-400 font-semibold";
+      } else {
+        cacheBadge.innerText = "Dynamic";
+        cacheBadge.className = "px-3 py-1 bg-amber-500/10 text-amber-400 text-xs font-semibold rounded-full border border-amber-500/20 uppercase tracking-wider";
+        cacheTitle.innerText = "Smart Cache: Dynamic (Branch)";
+        cachePolicyText.innerText = "Auto Revalidating (stale-while-revalidate)";
+        cachePolicyText.className = "text-xs text-amber-400 font-semibold";
+      }
+
+      document.getElementById("outputSection").classList.remove("hidden");
+      showToast("success", "Link CDN sukses diproduksi!");
+      resetPerformanceTestGrid();
+    }
+
+    /**
+     * Membuat HTML embed tag secara cerdas berdasarkan jenis ekstensi berkas
+     */
+    function generateEmbedTag(filePath, url) {
+      const ext = filePath.split('.').pop().toLowerCase();
+      if (ext === 'js' || ext === 'mjs') {
+        return `<script src="${url}"><\/script>`;
+      } else if (ext === 'css') {
+        return `<link rel="stylesheet" href="${url}">`;
+      } else if (ext === 'svg') {
+        return `<img src="${url}" alt="Vektor">`;
+      } else {
+        return `<a href="${url}" target="_blank">Download Resource (${ext.toUpperCase()})</a>`;
+      }
+    }
+
+    /**
+     * Memeriksa apakah branch merujuk pada versi ter-tag atau commit hash (Immutable)
+     */
+    function isVersionOrCommit(branch) {
+      const semverRegex = /^v?\d+\.\d+\.\d+(-[a-zA-Z0-9.]+)?$/;
+      const shaRegex = /^[a-fA-F0-9]{40}$/;
+      const shortShaRegex = /^[a-fA-F0-9]{7}$/;
+      return semverRegex.test(branch) || shaRegex.test(branch) || shortShaRegex.test(branch);
+    }
+
+    /**
+     * Salin konten teks ke clipboard
+     */
+    function copyToClipboard(elementId) {
+      const textToCopy = document.getElementById(elementId).innerText;
+      
+      const tempTextArea = document.createElement("textarea");
+      tempTextArea.value = textToCopy;
+      document.body.appendChild(tempTextArea);
+      tempTextArea.select();
+      tempTextArea.setSelectionRange(0, 99999);
+
+      try {
+        document.execCommand("copy");
+        showToast("success", "Berhasil disalin ke clipboard!");
+      } catch (err) {
+        showToast("error", "Gagal menyalin teks.");
+      }
+      document.body.removeChild(tempTextArea);
+    }
+
+    /**
+     * Trigger pembersihan cache di Edge Cloudflare (Remote Purge)
+     */
+    async function triggerPurge() {
+      if (!activeConvertedData) return;
+
+      const { owner, repo, branch, filePath } = activeConvertedData;
+      const purgeUrl = `${CDN_WORKER_DOMAIN}/purge/${owner}/${repo}/${branch}/${filePath}`;
+
+      showToast("info", "Memproses pembersihan cache di Cloudflare Edge...");
+
+      try {
+        const response = await fetch(purgeUrl, {
+          method: "GET",
+          mode: "cors"
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+          showToast("success", "Sip! Cache berhasil dibersihkan.");
+        } else {
+          showToast("error", result.message || "Gagal menghapus cache.");
+        }
+      } catch (err) {
+        showToast("error", "CORS Error atau server offline. Hubungi administrator CDN.");
+        console.error(err);
+      }
+    }
+
+    /**
+     * Uji responsivitas, latency, dan CORS header CDN
+     */
+    async function testCdnPerformance() {
+      if (!activeConvertedData) return;
+
+      const targetUrl = activeConvertedData.cdnUrlStr;
+
+      document.getElementById("testStatus").innerText = "Testing...";
+      document.getElementById("testLatency").innerText = "Testing...";
+      document.getElementById("testCache").innerText = "Testing...";
+      document.getElementById("testMime").innerText = "Testing...";
+
+      const start = Date.now();
+
+      try {
+        const response = await fetch(targetUrl, { 
+          method: 'HEAD',
+          mode: 'cors'
+        });
+        const latency = Date.now() - start;
+
+        document.getElementById("testStatus").innerText = `${response.status} OK`;
+        document.getElementById("testStatus").className = "text-sm font-bold text-emerald-400 mt-1";
+        
+        document.getElementById("testLatency").innerText = `${latency} ms`;
+        document.getElementById("testLatency").className = "text-sm font-bold text-sky-400 mt-1";
+
+        const cacheHeader = response.headers.get("X-Cache") || "MISS/EDGE";
+        document.getElementById("testCache").innerText = cacheHeader;
+        document.getElementById("testCache").className = cacheHeader.includes("HIT") ? "text-sm font-bold text-emerald-400 mt-1" : "text-sm font-bold text-amber-500 mt-1";
+
+        const mimeHeader = response.headers.get("Content-Type") || "Not Detected";
+        document.getElementById("testMime").innerText = mimeHeader.split(';')[0];
+        document.getElementById("testMime").title = mimeHeader;
+
+        showToast("success", "Pengujian latensi CDN selesai!");
+
+      } catch (err) {
+        document.getElementById("testStatus").innerText = "CORS ERR";
+        document.getElementById("testStatus").className = "text-sm font-bold text-rose-500 mt-1";
+        document.getElementById("testLatency").innerText = "N/A";
+        document.getElementById("testCache").innerText = "BLOCKED";
+        document.getElementById("testCache").className = "text-sm font-bold text-rose-500 mt-1";
+        document.getElementById("testMime").innerText = "N/A";
+        showToast("error", "Request diblokir oleh kebijakan CORS browser atau CDN sedang offline!");
+      }
+    }
+
+    function resetPerformanceTestGrid() {
+      document.getElementById("testStatus").innerText = "-";
+      document.getElementById("testStatus").className = "text-sm font-bold text-slate-300 mt-1";
+      document.getElementById("testLatency").innerText = "-";
+      document.getElementById("testCache").innerText = "-";
+      document.getElementById("testCache").className = "text-sm font-bold text-slate-300 mt-1";
+      document.getElementById("testMime").innerText = "-";
+    }
+
+    /**
+     * Toast Alert Utility
+     */
+    function showToast(type, message) {
+      const toast = document.getElementById("toast");
+      const icon = document.getElementById("toastIcon");
+      const msg = document.getElementById("toastMessage");
+
+      msg.innerText = message;
+
+      if (type === "success") {
+        icon.innerHTML = '<i class="fa-solid fa-circle-check text-emerald-400"></i>';
+        toast.className = "fixed bottom-5 right-5 bg-slate-900 border border-emerald-500/30 text-slate-100 px-4 py-3 rounded-xl shadow-2xl transition duration-300 transform translate-y-0 opacity-100 z-50 flex items-center gap-2";
+      } else if (type === "error") {
+        icon.innerHTML = '<i class="fa-solid fa-circle-xmark text-rose-400"></i>';
+        toast.className = "fixed bottom-5 right-5 bg-slate-900 border border-rose-500/30 text-slate-100 px-4 py-3 rounded-xl shadow-2xl transition duration-300 transform translate-y-0 opacity-100 z-50 flex items-center gap-2";
+      } else {
+        icon.innerHTML = '<i class="fa-solid fa-circle-info text-sky-400"></i>';
+        toast.className = "fixed bottom-5 right-5 bg-slate-900 border border-slate-800 text-slate-100 px-4 py-3 rounded-xl shadow-2xl transition duration-300 transform translate-y-0 opacity-100 z-50 flex items-center gap-2";
+      }
+
+      setTimeout(() => {
+        toast.className = "fixed bottom-5 right-5 bg-slate-900 border border-slate-800 text-slate-200 px-4 py-3 rounded-xl shadow-2xl transition duration-300 transform translate-y-20 opacity-0 z-50 flex items-center gap-2";
+      }, 3500);
+    }
+  </script>
+</body>
+</html>

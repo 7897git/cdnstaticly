@@ -54,13 +54,13 @@
           <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"></span>
           <span class="relative inline-flex rounded-full h-2 w-2 bg-indigo-500"></span>
         </span>
-        <span class="text-xs font-semibold text-brand-100 tracking-wider uppercase">Enterprise CDN Active</span>
+        <span class="text-xs font-semibold text-brand-100 tracking-wider uppercase">Active CDN Node</span>
       </div>
       <h1 class="text-4xl md:text-5xl font-extrabold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-white via-slate-100 to-brand-500 mb-4">
         GitHub CDN Link Converter
       </h1>
       <p class="text-slate-400 max-w-2xl mx-auto text-base md:text-lg">
-        Konversi script, stylesheet, dan aset dari repositori GitHub publik ke URL CDN berkecepatan tinggi menggunakan jaringan edge Cloudflare.
+        Konversi URL GitHub biasa ke CDN, atau bedah kembali URL CDN yang sudah jadi untuk melihat struktur repo dan estimasi durasi cachenya.
       </p>
     </header>
 
@@ -70,15 +70,25 @@
       <div class="lg:col-span-2 space-y-6">
         
         <div class="bg-slate-900/80 border border-slate-800/80 rounded-2xl p-6 backdrop-blur-xl shadow-xl">
-          <h2 class="text-lg font-semibold mb-4 flex items-center gap-2">
-            <i class="fa-solid fa-wand-magic-sparkles text-brand-500"></i> Konverter URL
-          </h2>
+          <div class="flex items-center justify-between mb-6">
+            <h2 class="text-lg font-semibold flex items-center gap-2">
+              <i class="fa-solid fa-wand-magic-sparkles text-brand-500"></i> Generator & Parser
+            </h2>
+            <div class="flex gap-2">
+              <button onclick="switchTab('convert')" id="tab-convert" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-brand-600 text-white transition-all">
+                Konversi Link
+              </button>
+              <button onclick="switchTab('parse')" id="tab-parse" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-850 text-slate-400 hover:text-slate-200 transition-all">
+                Bedah Link CDN
+              </button>
+            </div>
+          </div>
           
           <div class="space-y-5">
             <!-- Menampilkan Domain Aktif dalam Bentuk Badge Non-Editable -->
             <div class="p-4 bg-slate-950 border border-slate-800 rounded-xl flex items-center justify-between">
               <div>
-                <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Domain CDN Terhubung</p>
+                <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Domain CDN Aktif</p>
                 <p class="text-sm font-semibold text-brand-300 mt-1 code-font">https://cdn.ohyesohnoyesno.workers.dev</p>
               </div>
               <div class="bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 px-2.5 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider">
@@ -86,32 +96,32 @@
               </div>
             </div>
 
-            <!-- Input Utama Link GitHub -->
+            <!-- Input Utama Link GitHub / CDN Link -->
             <div>
-              <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">
+              <label id="inputLabel" class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">
                 📂 Link File GitHub Publik
               </label>
               <div class="relative rounded-lg shadow-sm">
                 <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-500">
-                  <i class="fa-brands fa-github text-lg"></i>
+                  <i id="inputIcon" class="fa-brands fa-github text-lg"></i>
                 </div>
-                <input type="text" id="githubUrl" class="w-full pl-10 pr-4 py-3.5 bg-slate-950 border border-slate-800 focus:border-brand-500 rounded-xl focus:outline-none text-sm placeholder-slate-600 transition" placeholder="https://github.com/owner/repo/blob/branch/src/app.js">
+                <input type="text" id="mainInput" class="w-full pl-10 pr-4 py-3.5 bg-slate-950 border border-slate-800 focus:border-brand-500 rounded-xl focus:outline-none text-sm placeholder-slate-600 transition" placeholder="https://github.com/owner/repo/blob/branch/src/app.js">
               </div>
-              <p class="text-[11px] text-slate-500 mt-1.5">Paste link file dari browser GitHub (mendukung branch dinamis atau tag rilis).</p>
+              <p id="inputHelper" class="text-[11px] text-slate-500 mt-1.5">Paste link file dari browser GitHub (mendukung branch dinamis atau tag rilis).</p>
             </div>
 
             <!-- Indikator Cache Pintar -->
             <div class="p-3.5 bg-slate-950/50 rounded-xl border border-slate-800/50 flex items-center justify-between">
               <div>
-                <p class="text-sm font-semibold text-slate-200" id="cacheTypeTitle">Tipe Cache Otomatis</p>
-                <p class="text-xs text-slate-500">Sistem akan menyesuaikan durasi cache berdasarkan nama branch/tag.</p>
+                <p class="text-sm font-semibold text-slate-200" id="cacheTypeTitle">Smart Cache Analyzer</p>
+                <p class="text-xs text-slate-500">Analisis otomatis tipe branch/commit hash untuk efisiensi header cache.</p>
               </div>
               <span id="cacheBadge" class="px-3 py-1 bg-slate-800 text-slate-400 text-xs font-medium rounded-full uppercase tracking-wider">Dynamic</span>
             </div>
 
             <!-- Tombol Aksi -->
-            <button onclick="convertUrl()" class="w-full bg-brand-600 hover:bg-brand-500 text-white font-medium py-3 px-4 rounded-xl transition duration-200 flex items-center justify-center gap-2 shadow-lg shadow-brand-600/20">
-              <i class="fa-solid fa-rotate text-sm"></i> Generate Link CDN
+            <button onclick="handleAction()" id="actionBtn" class="w-full bg-brand-600 hover:bg-brand-500 text-white font-medium py-3 px-4 rounded-xl transition duration-200 flex items-center justify-center gap-2 shadow-lg shadow-brand-600/20">
+              <i class="fa-solid fa-wand-magic-sparkles text-sm"></i> Ambil Link CDN
             </button>
           </div>
         </div>
@@ -120,11 +130,11 @@
         <div id="outputSection" class="hidden space-y-6">
           <div class="bg-slate-900 border border-emerald-500/30 rounded-2xl p-6 shadow-xl relative overflow-hidden">
             <div class="absolute top-0 right-0 px-3 py-1 bg-emerald-500/10 text-emerald-400 text-xs rounded-bl-xl border-l border-b border-emerald-500/20 font-medium">
-              Siap Digunakan
+              Metadata & Link
             </div>
 
             <h3 class="text-base font-semibold mb-4 text-emerald-400 flex items-center gap-2">
-              <i class="fa-solid fa-circle-check"></i> Link Hasil Konversi
+              <i class="fa-solid fa-circle-check"></i> Hasil Pemrosesan Berhasil
             </h3>
 
             <div class="space-y-4">
@@ -154,6 +164,17 @@
                   <button onclick="copyToClipboard('embedTag')" class="bg-slate-800 hover:bg-slate-700 text-slate-200 px-4 rounded-xl transition duration-150 flex items-center justify-center shrink-0">
                     <i class="fa-solid fa-copy"></i>
                   </button>
+                </div>
+              </div>
+
+              <!-- File Metadata Breakdown -->
+              <div class="p-4 bg-slate-950 rounded-xl border border-slate-800/80 space-y-2 text-xs">
+                <p class="font-semibold text-slate-400 mb-2 uppercase tracking-wider">Detail Komponen File:</p>
+                <div class="grid grid-cols-2 gap-2 text-slate-300">
+                  <div>Owner: <span class="text-brand-300 font-medium" id="metaOwner">-</span></div>
+                  <div>Repo: <span class="text-brand-300 font-medium" id="metaRepo">-</span></div>
+                  <div>Branch/Commit: <span class="text-brand-300 font-medium code-font" id="metaBranch">-</span></div>
+                  <div>Path: <span class="text-brand-300 font-medium" id="metaPath">-</span></div>
                 </div>
               </div>
 
@@ -208,16 +229,26 @@
         
         <div class="bg-slate-900/50 border border-slate-800 rounded-2xl p-6 space-y-4">
           <h3 class="text-sm font-semibold text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
-            <i class="fa-solid fa-network-wired text-brand-400"></i> Sistem Terdesentralisasi
+            <i class="fa-solid fa-network-wired text-brand-400"></i> Smart Cache Rules
           </h3>
           <p class="text-xs text-slate-400 leading-relaxed">
-            Frontend konverter ini dirancang independen dari backend CDN di <code class="text-slate-300">cdn.ohyesohnoyesno.workers.dev</code>. Data ditransfer lintas-domain secara instan menggunakan metode fetch asinkron yang aman.
+            Worker menganalisis branch yang digunakan untuk memberikan setelan header performa terbaik:
           </p>
-          <div class="p-3 bg-slate-950 rounded-xl border border-slate-800">
-            <h4 class="text-[11px] font-semibold text-slate-300 uppercase mb-1">MIME Detection:</h4>
-            <p class="text-[10px] text-slate-500 leading-normal">
-              Aplikasi mendukung lebih dari 100+ tipe ekstensi file (.js, .css, .json, .wasm, .svg, dll.) secara otomatis sehingga tidak akan diblokir browser.
-            </p>
+          <div class="space-y-2 text-xs">
+            <div class="flex items-start gap-2 p-2 bg-emerald-500/5 border border-emerald-500/10 rounded-lg">
+              <i class="fa-solid fa-lock text-emerald-400 mt-0.5"></i>
+              <div>
+                <p class="font-semibold text-emerald-400">Tag / SHA Commit (Immutable)</p>
+                <p class="text-[10px] text-slate-500 mt-0.5">Disimpan selamanya di Edge (1 tahun). Sangat direkomendasikan untuk situs production.</p>
+              </div>
+            </div>
+            <div class="flex items-start gap-2 p-2 bg-amber-500/5 border border-amber-500/10 rounded-lg">
+              <i class="fa-solid fa-bolt text-amber-400 mt-0.5"></i>
+              <div>
+                <p class="font-semibold text-amber-400">Branch Dinamis (Mutable)</p>
+                <p class="text-[10px] text-slate-500 mt-0.5">Disimpan singkat (2 jam di Edge) dengan skema revalidasi di latar belakang.</p>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -226,15 +257,15 @@
           <ol class="space-y-2.5 text-xs text-slate-400">
             <li class="flex gap-2.5">
               <span class="font-bold text-brand-400">1.</span>
-              <span>Masukkan URL berkas GitHub publik di kolom input.</span>
+              <span>Masukkan URL berkas GitHub publik di kolom input atau bedah langsung URL CDN.</span>
             </li>
             <li class="flex gap-2.5">
               <span class="font-bold text-brand-400">2.</span>
-              <span>Sistem mengonversinya ke jalur CDN Cloudflare Edge pribadi Anda.</span>
+              <span>Dapatkan konversi tag script atau tautan stylesheet siap pakai.</span>
             </li>
             <li class="flex gap-2.5">
               <span class="font-bold text-brand-400">3.</span>
-              <span>Lakukan pre-test dan audit cache jarak jauh secara langsung dari dasbor ini.</span>
+              <span>Gunakan fitur pembersihan cache instan jika terjadi perubahan data pada branch dinamis.</span>
             </li>
           </ol>
         </div>
@@ -257,41 +288,124 @@
   </div>
 
   <script>
-    // Inisialisasi Domain CDN Utama secara permanen (Locked/Hardcoded)
     const CDN_WORKER_DOMAIN = "https://cdn.ohyesohnoyesno.workers.dev";
     let activeConvertedData = null;
+    let currentTab = 'convert'; // 'convert' atau 'parse'
+
+    /**
+     * Berpindah Tab Aplikasi
+     */
+    function switchTab(tab) {
+      currentTab = tab;
+      const tabConvert = document.getElementById("tab-convert");
+      const tabParse = document.getElementById("tab-parse");
+      const mainInput = document.getElementById("mainInput");
+      const inputLabel = document.getElementById("inputLabel");
+      const inputHelper = document.getElementById("inputHelper");
+      const actionBtn = document.getElementById("actionBtn");
+      const inputIcon = document.getElementById("inputIcon");
+
+      if (tab === 'convert') {
+        tabConvert.className = "px-3 py-1.5 rounded-lg text-xs font-semibold bg-brand-600 text-white transition-all";
+        tabParse.className = "px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-850 text-slate-400 hover:text-slate-200 transition-all";
+        inputLabel.innerText = "📂 Link File GitHub Publik";
+        inputHelper.innerText = "Paste link file dari browser GitHub (mendukung branch dinamis atau tag rilis).";
+        mainInput.placeholder = "https://github.com/owner/repo/blob/branch/src/app.js";
+        actionBtn.innerHTML = '<i class="fa-solid fa-wand-magic-sparkles text-sm"></i> Ambil Link CDN';
+        inputIcon.className = "fa-brands fa-github text-lg";
+      } else {
+        tabParse.className = "px-3 py-1.5 rounded-lg text-xs font-semibold bg-brand-600 text-white transition-all";
+        tabConvert.className = "px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-850 text-slate-400 hover:text-slate-200 transition-all";
+        inputLabel.innerText = "🔍 Link CDN ohyesohnoyesno";
+        inputHelper.innerText = "Masukkan URL CDN dari domain Anda untuk diuraikan kembali strukturnya.";
+        mainInput.placeholder = "https://cdn.ohyesohnoyesno.workers.dev/owner/repo/branch/path/file.js";
+        actionBtn.innerHTML = '<i class="fa-solid fa-magnifying-glass text-sm"></i> Bedah & Analisis Link';
+        inputIcon.className = "fa-solid fa-link text-lg";
+      }
+    }
+
+    /**
+     * Handle Aksi utama tombol berdasarkan Tab saat ini
+     */
+    function handleAction() {
+      const inputVal = document.getElementById("mainInput").value.trim();
+
+      if (!inputVal) {
+        showToast("error", "Input tidak boleh kosong, bro!");
+        return;
+      }
+
+      if (currentTab === 'convert') {
+        convertUrl(inputVal);
+      } else {
+        parseCdnUrl(inputVal);
+      }
+    }
 
     /**
      * Konversi URL GitHub ke URL CDN Cloudflare
      */
-    function convertUrl() {
-      const gitUrl = document.getElementById("githubUrl").value.trim();
-
-      if (!gitUrl) {
-        showToast("error", "Silakan masukkan link berkas GitHub, bro!");
-        return;
-      }
-
+    function convertUrl(gitUrl) {
       const githubBlobRegex = /^https?:\/\/github\.com\/([^\/]+)\/([^\/]+)\/blob\/([^\/]+)\/(.+)$/i;
       const githubRawRegex = /^https?:\/\/raw\.githubusercontent\.com\/([^\/]+)\/([^\/]+)\/([^\/]+)\/(.+)$/i;
 
       let match = gitUrl.match(githubBlobRegex) || gitUrl.match(githubRawRegex);
 
       if (!match) {
-        showToast("error", "Format URL GitHub salah! Pastikan link mengarah langsung ke file.");
+        showToast("error", "Format URL GitHub salah! Pastikan mengarah ke file spesifik.");
         return;
       }
 
       const [_, owner, repo, branch, filePath] = match;
-
-      // Konversi langsung menggunakan domain yang sudah di-lock
       const cdnUrlStr = `${CDN_WORKER_DOMAIN}/${owner}/${repo}/${branch}/${filePath}`;
+
+      renderResults(owner, repo, branch, filePath, cdnUrlStr);
+    }
+
+    /**
+     * Uraikan kembali URL CDN yang diinputkan pengguna
+     */
+    function parseCdnUrl(cdnUrl) {
+      // Membersihkan protokol dan domain
+      let cleanUrl = cdnUrl.replace(/^https?:\/\//i, '');
+      const domainClean = CDN_WORKER_DOMAIN.replace(/^https?:\/\//i, '');
+
+      if (!cleanUrl.startsWith(domainClean)) {
+        showToast("error", "URL tersebut tidak menggunakan domain CDN Anda!");
+        return;
+      }
+
+      // Format path: owner/repo/branch/filePath
+      const pathOnly = cleanUrl.replace(domainClean, '');
+      const pathParts = pathOnly.split('/').filter(Boolean);
+
+      if (pathParts.length < 4) {
+        showToast("error", "Struktur path URL CDN tidak valid.");
+        return;
+      }
+
+      const [owner, repo, branch, ...filePaths] = pathParts;
+      const filePath = filePaths.join('/');
+
+      renderResults(owner, repo, branch, filePath, cdnUrl);
+    }
+
+    /**
+     * Render komponen hasil ke UI
+     */
+    function renderResults(owner, repo, branch, filePath, cdnUrlStr) {
       activeConvertedData = { owner, repo, branch, filePath, cdnUrlStr };
 
-      // Render data ke tampilan
+      // Update UI Tampilan utama
       document.getElementById("cdnUrl").innerText = cdnUrlStr;
       document.getElementById("embedTag").innerText = generateEmbedTag(filePath, cdnUrlStr);
       
+      // Update Metadata panel
+      document.getElementById("metaOwner").innerText = owner;
+      document.getElementById("metaRepo").innerText = repo;
+      document.getElementById("metaBranch").innerText = branch;
+      document.getElementById("metaPath").innerText = filePath;
+
       const isImmutable = isVersionOrCommit(branch);
       const cacheBadge = document.getElementById("cacheBadge");
       const cacheTitle = document.getElementById("cacheTypeTitle");
@@ -312,7 +426,7 @@
       }
 
       document.getElementById("outputSection").classList.remove("hidden");
-      showToast("success", "Link CDN sukses diproduksi!");
+      showToast("success", "Pemrosesan URL sukses!");
       resetPerformanceTestGrid();
     }
 
@@ -388,7 +502,7 @@
           showToast("error", result.message || "Gagal menghapus cache.");
         }
       } catch (err) {
-        showToast("error", "CORS Error atau server offline. Hubungi administrator CDN.");
+        showToast("error", "Koneksi gagal. Pastikan Worker Anda mengaktifkan origin CORS.");
         console.error(err);
       }
     }
